@@ -56,7 +56,8 @@ Hook: add it to the project's `.claude/settings.json`, using your own path:
 ```
 
 With problems it blocks the stop once and hands Claude the list to fix. If they are still there on the next stop
-(`stop_hook_active`), it only shows them, so a session never loops. With none it is silent. If the check itself fails,
+(`stop_hook_active`), it only shows them, so a session never loops. The next turn blocks again, so a problem you
+want to keep belongs in `ignore` (see Config). With none it is silent. If the check itself fails,
 it lets the stop through.
 
 ## Config
@@ -77,6 +78,11 @@ Optional, in `.claude/docs-check.json` in the project. Every key falls back to i
 | `upfrontChars` | `5000` | characters for each upfront file |
 | `memory` | `true` | also check the project's Claude memory folder |
 | `checks` | `[]` | extra check modules, paths relative to the project |
+| `ignore` | `[]` | regexes on problem lines you accepted; matching problems are never reported |
+
+**Ignore** is for a problem you decided to keep, such as a link to a file you removed on purpose. Without it, the
+hook would block every turn over it. The block message tells Claude to ask you before adding one. A manual run says
+how many problems it ignored.
 
 **Extra checks** are for rules only your project has. A module's default export gets
 `{ projectDir, memoryDir, files, memFiles, read }` and returns a list of problem strings (or a promise of one). See

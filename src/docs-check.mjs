@@ -19,6 +19,7 @@ const defaults = {
   upfrontChars: 5000,              // characters for each upfront file
   memory: true,                    // also check the project's Claude memory folder
   checks: [],                      // extra check modules, relative to the project: export default (ctx) => problems[]
+  ignore: [],                      // regexes on problem lines the user accepted: never reported
 };
 
 function loadConfig(projectDir) {
@@ -146,15 +147,18 @@ async function main() {
     if (raw.trim()) hookInput = JSON.parse(raw);
   }
   const projectDir = args.find((a) => !a.startsWith('--')) ?? process.env.CLAUDE_PROJECT_DIR ?? hookInput?.cwd ?? process.cwd();
-  const { config, problems, ctx } = check(projectDir, { hookInput });
+  const { config, problems: found, ctx } = check(projectDir, { hookInput });
   for (const mod of config.checks) {
     const extra = await import(pathToFileURL(resolve(ctx.projectDir, mod)).href);
-    problems.push(...(await extra.default(ctx)));
+    found.push(...(await extra.default(ctx)));
   }
+  // Accepted problems drop out here, so one the user chose to keep can't block every turn.
+  const ignore = config.ignore.map((s) => new RegExp(s));
+  const problems = found.filter((p) => !ignore.some((re) => re.test(p)));
 
   if (!hook) {
     problems.forEach((p) => console.log(p));
-    console.log(`problems: ${problems.length}`);
+    console.log(`problems: ${problems.length}` + (found.length > problems.length ? ` (${found.length - problems.length} ignored)` : ''));
     return;
   }
   if (problems.length === 0) return;
@@ -162,7 +166,7 @@ async function main() {
   if (problems.length > 25) shown += `\n... and ${problems.length - 25} more (run docs-check.mjs by hand for all)`;
   const out = hookInput?.stop_hook_active
     ? { systemMessage: `Docs check still finds ${problems.length} problem(s):\n${shown}` }
-    : { decision: 'block', reason: `Docs check found ${problems.length} problem(s). Fix them before finishing (rules: the docs rules in CLAUDE.md):\n${shown}` };
+    : { decision: 'block', reason: `Docs check found ${problems.length} problem(s). Fix them before finishing (rules: the docs rules in CLAUDE.md). If one can't or shouldn't be fixed, ask the user, and on their yes add a regex for it to "ignore" in .claude/docs-check.json:\n${shown}` };
   console.log(JSON.stringify(out));
 }
 
