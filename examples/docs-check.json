@@ -1,0 +1,8 @@
+{
+  "roots": ["docs", "src"],
+  "files": ["CLAUDE.md", "AGENTS.md"],
+  "exclude": ["(^|/)(node_modules|\\.git)(/|$)", "^src/generated/"],
+  "notOrphan": ["^docs/tickets/"],
+  "hubLinkLines": 15,
+  "checks": ["tools/docs-extra.mjs"]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "claude-doc-hubs",
+  "version": "0.1.0",
+  "description": "Rules and a Stop hook that keep a project's docs and Claude memory slim: one topic per file, small hubs, no broken links.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "bin": {
+    "docs-check": "src/docs-check.mjs"
+  },
+  "scripts": {
+    "check": "node src/docs-check.mjs"
+  }
+}
