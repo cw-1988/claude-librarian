@@ -1,4 +1,4 @@
-# claude-doc-hubs
+# claude-librarian
 
 Rules and a Stop hook that keep a project's docs and Claude memory cheap to load as they grow.
 
@@ -25,9 +25,9 @@ Zero dependencies, Node 22 or later (or Bun), reads only local files.
 ## Install
 
 ```bash
-git clone https://github.com/cw-1988/claude-doc-hubs ~/claude-doc-hubs
+git clone https://github.com/cw-1988/claude-librarian ~/claude-librarian
 cd your-project
-node ~/claude-doc-hubs/src/docs-check.mjs
+node ~/claude-librarian/src/docs-check.mjs
 ```
 
 That prints every problem and the count. Fix the existing ones first (or ask Claude to), then add the rules and the
@@ -36,7 +36,7 @@ hook.
 Rules: add this line to the project's `CLAUDE.md` (Claude Code imports the file), or paste the bullets in:
 
 ```
-@~/claude-doc-hubs/RULES.md
+@~/claude-librarian/RULES.md
 ```
 
 Hook: add it to the project's `.claude/settings.json`, using your own path:
@@ -47,7 +47,7 @@ Hook: add it to the project's `.claude/settings.json`, using your own path:
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "node \"/home/you/claude-doc-hubs/src/docs-check.mjs\" --hook", "timeout": 120 }
+          { "type": "command", "command": "node \"/home/you/claude-librarian/src/docs-check.mjs\" --hook", "timeout": 120 }
         ]
       }
     ]
